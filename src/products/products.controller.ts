@@ -1,35 +1,56 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
+import { ClientProxy} from '@nestjs/microservices';
+import { PaginationDto } from 'src/common/dto/pagination';
+import { PRODUCTS_SERVICE } from 'src/config';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { firstValueFrom } from 'rxjs';
+import { CreateProductDto } from './dto/create-product.dto';
 
 
 @Controller('products')
 export class ProductsController {
-  constructor() {}
+  constructor(
+    @Inject(PRODUCTS_SERVICE) private readonly productsClient: ClientProxy
+  ) { }
 
   @Post()
-  createProduct(){
-    return 'Product created successfully';
+  createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productsClient.send({ cmd: 'create_product'},{createProductDto});
   }
 
   @Get()
-  allProducts(){
-     return 'All products';
+  allProducts(@Query() paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+    return this.productsClient.send({ cmd: 'get_products' }, { page, limit });
   };
 
   @Get(':id')
-  getProductById(){
-    return 'Product by id';
+  async getProductById(@Param('id') id: string) {
+    const product = await firstValueFrom(
+      this.productsClient.send({ cmd: 'get_product' }, { id })
+    )
+    return product;
   }
 
   @Patch(':id')
-  updateProduct(){
-    return 'Product updated successfully';
+  async updateProduct(@Body() updateProductDto: UpdateProductDto, @Param('id') id: string) {
+    const product = await firstValueFrom(
+      this.productsClient.send(
+        { cmd: 'update_product' },
+        {
+          id: +id,
+          updateProductDto
+        })
+    )
+    return product;
   }
 
   @Delete(':id')
-  deleteProduct(){
-    return 'Product deleted successfully';
+  async deleteProduct(@Param('id') id: string) {
+
+    const product = await firstValueFrom(
+      this.productsClient.send({ cmd: 'delete_product' }, { id: +id })
+    )
+    return product;
   }
-
-
-
 }
