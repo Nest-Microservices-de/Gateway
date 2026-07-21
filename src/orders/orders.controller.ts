@@ -14,13 +14,12 @@ export class OrdersController {
 
   @Get()
   findAll() {
-    return this.ordersClient.send({cmd:'findAllOrders'},{});
+    return this.ordersClient.send('findAllOrders',{});
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.ordersClient.send('findOneOrder', {});
-
+    return this.ordersClient.send('findOneOrder', {id:id});
   }
 
 
