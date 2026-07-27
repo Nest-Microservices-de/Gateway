@@ -7,9 +7,12 @@ export class PaginationDto {
     @Type(() => Number)
     page?: number = 1;
 
-
     @IsPositive()
     @IsOptional()
     @Type(() => Number)
     limit?: number = 10;
+
+    @IsOptional()
+    filter?: string = 'PENDING'
 }
+
