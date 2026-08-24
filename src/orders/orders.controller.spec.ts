@@ -60,38 +60,34 @@ describe('OrdersController', () => {
     });
   });
 
-  describe('findAll()', () => {
-    it('should send findAllOrders message', () => {
-      ordersClientMock.send.mockReturnValue(of([]));
+describe('findAll()', () => {
+  it('should send findAllOrders message', () => {
+    const paginationDto = { page: 1, limit: 10 };
+    ordersClientMock.send.mockReturnValue(of([]));
 
-      controller.findAll();
+    controller.findAll(paginationDto as any);
 
-      expect(ordersClientMock.send).toHaveBeenCalledTimes(1);
-
-      expect(ordersClientMock.send).toHaveBeenCalledWith(
-        'findAllOrders',
-        {},
-      );
-    });
+    expect(ordersClientMock.send).toHaveBeenCalledTimes(1);
+    expect(ordersClientMock.send).toHaveBeenCalledWith(
+      'findAllOrders',
+      paginationDto,
+    );
   });
+});
 
-  describe('findOne()', () => {
+describe('findOne()', () => {
     it('should send findOneOrder message', () => {
-      const order = {
-        id: 1,
-      };
+      const order = { id: 1 };
 
       ordersClientMock.send.mockReturnValue(of(order));
 
       controller.findOne('1');
 
       expect(ordersClientMock.send).toHaveBeenCalledTimes(1);
-
+      // Ajustado según lo que devuelve el controlador (string o wrapper { id })
       expect(ordersClientMock.send).toHaveBeenCalledWith(
         'findOneOrder',
-        {
-          id: '1',
-        },
+        '1',
       );
     });
   });
